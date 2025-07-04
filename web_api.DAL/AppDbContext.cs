@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using web_api.DAL.Entities;
 
 namespace web_api.DAL
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions options) 
+        : IdentityDbContext<IdentityUser>(options)
     {
-        public AppDbContext(DbContextOptions options) : base(options) { }
-        
         public DbSet<Car> Cars { get; set; }
     }
 }
