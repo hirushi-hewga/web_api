@@ -66,14 +66,9 @@ namespace web_api.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("RoleId1")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
@@ -169,14 +164,9 @@ namespace web_api.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
@@ -196,14 +186,9 @@ namespace web_api.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.HasKey("LoginProvider", "ProviderKey");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
@@ -216,19 +201,9 @@ namespace web_api.DAL.Migrations
                     b.Property<string>("RoleId")
                         .HasColumnType("text");
 
-                    b.Property<string>("RoleId1")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
@@ -244,15 +219,10 @@ namespace web_api.DAL.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
@@ -282,70 +252,50 @@ namespace web_api.DAL.Migrations
 
             modelBuilder.Entity("web_api.DAL.Entities.AppRoleClaim", b =>
                 {
-                    b.HasOne("web_api.DAL.Entities.AppRole", null)
-                        .WithMany()
+                    b.HasOne("web_api.DAL.Entities.AppRole", "Role")
+                        .WithMany("RoleClaims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("web_api.DAL.Entities.AppRole", "Role")
-                        .WithMany("RoleClaims")
-                        .HasForeignKey("RoleId1");
 
                     b.Navigation("Role");
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.AppUserClaim", b =>
                 {
-                    b.HasOne("web_api.DAL.Entities.AppUser", null)
-                        .WithMany()
+                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
+                        .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
-                        .WithMany("Claims")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.AppUserLogin", b =>
                 {
-                    b.HasOne("web_api.DAL.Entities.AppUser", null)
-                        .WithMany()
+                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
+                        .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
-                        .WithMany("Logins")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.AppUserRole", b =>
                 {
-                    b.HasOne("web_api.DAL.Entities.AppRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("web_api.DAL.Entities.AppRole", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("RoleId1");
-
-                    b.HasOne("web_api.DAL.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("web_api.DAL.Entities.AppUser", "User")
                         .WithMany("UserRoles")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Role");
 
@@ -354,15 +304,11 @@ namespace web_api.DAL.Migrations
 
             modelBuilder.Entity("web_api.DAL.Entities.AppUserToken", b =>
                 {
-                    b.HasOne("web_api.DAL.Entities.AppUser", null)
-                        .WithMany()
+                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
+                        .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("web_api.DAL.Entities.AppUser", "User")
-                        .WithMany("Tokens")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
