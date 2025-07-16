@@ -1,22 +1,21 @@
-using Microsoft.AspNetCore.Identity;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using web_api.BLL.DTOs.Role;
 using web_api.BLL.Services.Role;
-using web_api.DAL;
-using web_api.DAL.Entities;
 
 namespace web_api.Controllers
 {
     [ApiController]
     [Route("api/role")]
-    public class RoleController : ControllerBase
+    public class RoleController : AppController
     {
         private readonly IRoleService _roleService;
+        private readonly IValidator<RoleDto> _roleValidator;
 
-        public RoleController(IRoleService roleService)
+        public RoleController(IRoleService roleService, IValidator<RoleDto> roleValidator)
         {
             _roleService = roleService;
+            _roleValidator = roleValidator;
         }
 
         [HttpGet("list")]
@@ -29,8 +28,9 @@ namespace web_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetByIdAsync(string? id)
         {
-            if (id == null)
-                BadRequest("Id required");
+            var isValidId = ValidateId(id, out var message);
+            if (!isValidId)
+                return BadRequest(message);
             
             var role = await _roleService.GetByIdAsync(id);
             
@@ -40,6 +40,10 @@ namespace web_api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] RoleDto dto)
         {
+            var validResult = await _roleValidator.ValidateAsync(dto);
+            if (!validResult.IsValid)
+                return BadRequest(validResult);
+            
             var result = await _roleService.CreateAsync(dto);
             return result ? Ok("Role created") : BadRequest("Role not created");
         }
@@ -47,6 +51,14 @@ namespace web_api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromBody] RoleDto dto)
         {
+            var isValidId = ValidateId(dto.Id, out var message);
+            if (!isValidId)
+                return BadRequest(message);
+            
+            var validResult = await _roleValidator.ValidateAsync(dto);
+            if (!validResult.IsValid)
+                return BadRequest(validResult);
+            
             var result = await _roleService.UpdateAsync(dto);
             return result ? Ok("Role updated") : BadRequest("Role not updated");
         }
@@ -54,8 +66,9 @@ namespace web_api.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync(string? id)
         {
-            if (id == null)
-                BadRequest("Id required");
+            var isValidId = ValidateId(id, out var message);
+            if (!isValidId)
+                return BadRequest(message);
 
             var result = await _roleService.DeleteAsync(id);
             
