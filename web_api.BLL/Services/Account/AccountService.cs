@@ -57,17 +57,27 @@ namespace web_api.BLL.Services.Account
                 return null;
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            string messageBody = $"<a href='https://localhost:7220/api/account/emailConfirm?id={user.Id}&t={token}'>Підтвердити пошту</а>";
+            var encodedToken = Uri.EscapeDataString(token);
+            string messageBody = $@"
+                <a href='http://localhost:5014/api/account/emailConfirm?id={user.Id}&t={encodedToken}'>
+                    Підтвердити пошту
+                </a>";
 
-            await _emailService.SendMailAsync("lo067803@gmail.com", "Email confirm", messageBody, true);
+            await _emailService.SendMailAsync(user.Email, "Email confirm", messageBody, true);
             
             return user;
         }
 
-        public Task<bool> EmailConfirmAsync(string id, string token)
+        public async Task<bool> EmailConfirmAsync(string id, string token)
         {
-            
-            return false;
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return false;
+
+            var decodedToken = Uri.UnescapeDataString(token);
+
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+            return result.Succeeded;
         }
     }
 }

@@ -11,11 +11,13 @@ namespace web_api.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IValidator<LoginDto> _loginValidator;
+        private readonly IValidator<RegisterDto> _registerValidator;
 
-        public AccountController(IAccountService accountService, IValidator<LoginDto> loginValidator)
+        public AccountController(IAccountService accountService, IValidator<LoginDto> loginValidator, IValidator<RegisterDto> registerValidator)
         {
             _accountService = accountService;
             _loginValidator = loginValidator;
+            _registerValidator = registerValidator;
         }
         
         [HttpPost("login")]
@@ -32,6 +34,10 @@ namespace web_api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto dto)
         {
+            var validResult = await _registerValidator.ValidateAsync(dto);
+            if (!validResult.IsValid)
+                return BadRequest(validResult);
+            
             var result = await _accountService.RegisterAsync(dto);
             return result == null ? BadRequest("Register error") : Ok(result);
         }

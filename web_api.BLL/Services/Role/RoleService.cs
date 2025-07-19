@@ -71,7 +71,6 @@ namespace web_api.BLL.Services.Role
             };
             
             return dto;
-
         }
 
         public async Task<IEnumerable<RoleDto>> GetAllAsync()

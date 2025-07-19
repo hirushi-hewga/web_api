@@ -2,12 +2,13 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using web_api.BLL.DTOs.Account;
-using web_api.BLL.DTOs.Role;
 using web_api.BLL.Services.Account;
 using web_api.BLL.Services.Email;
 using web_api.BLL.Services.Role;
+using web_api.BLL.Services.User;
 using web_api.DAL;
 using web_api.DAL.Entities;
+using web_api.DataInitializer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 
@@ -59,5 +61,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await Seeder.SeedAsync(services);
+}
 
 app.Run();
