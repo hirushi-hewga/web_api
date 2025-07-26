@@ -9,6 +9,7 @@ using web_api.BLL.Services.User;
 using web_api.DAL;
 using web_api.DAL.Entities;
 using web_api.DataInitializer;
+using web_api.BLL.MapperProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,13 @@ builder.Services.AddControllers();
 
 // Add fluent validation
 builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
+
+// Add automapper
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<RoleMapperProfile>();
+    cfg.AddProfile<UserMapperProfile>();
+});
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -46,6 +54,17 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("localhost3000", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -57,6 +76,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("localhost3000");
 
 app.UseAuthorization();
 

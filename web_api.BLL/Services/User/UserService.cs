@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using web_api.BLL.DTOs.User;
@@ -8,22 +9,24 @@ namespace web_api.BLL.Services.User
     public class UserService : IUserService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public UserService(UserManager<AppUser> userManager)
+        public UserService(UserManager<AppUser> userManager, IMapper mapper)
         {
             _userManager = userManager;
+            _mapper = mapper;
         }
         
         public async Task<bool> CreateAsync(UserCreateDto dto)
         {
             if (await _userManager.FindByEmailAsync(dto.Email) != null
-                || await _userManager.FindByNameAsync(dto.Username) != null)
+                || await _userManager.FindByNameAsync(dto.UserName) != null)
                 return false;
 
             var entity = new AppUser
             {
                 Id = dto.Id,
-                UserName = dto.Username,
+                UserName = dto.UserName,
                 Email = dto.Email
             };
             
@@ -34,12 +37,12 @@ namespace web_api.BLL.Services.User
         public async Task<bool> UpdateAsync(UserUpdateDto dto)
         {
             if (_userManager.Users.Where(u => u.Id != dto.Id)
-                .FirstOrDefault(u => u.NormalizedUserName == dto.Username.ToUpper()
+                .FirstOrDefault(u => u.NormalizedUserName == dto.UserName.ToUpper()
                     || u.NormalizedEmail == dto.Email.ToUpper()) != null)
                 return false;
             
             var user = await _userManager.FindByIdAsync(dto.Id);
-            user.UserName = dto.Username;
+            user.UserName = dto.UserName;
             user.Email = dto.Email;
 
             if (!string.IsNullOrEmpty(dto.Password) && !string.IsNullOrEmpty(dto.NewPassword))
@@ -85,7 +88,7 @@ namespace web_api.BLL.Services.User
             var dto = new UserDto
             { 
                 Id = entity.Id, 
-                Username = entity.UserName ?? "",
+                UserName = entity.UserName ?? "",
                 Email = entity.Email ?? "",
             };
             
@@ -94,10 +97,12 @@ namespace web_api.BLL.Services.User
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
-            var entities = await _userManager.Users.ToListAsync();
+            var entities = await _userManager.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .ToListAsync();
 
-            var dtos = entities
-                .Select(e => new UserDto { Id = e.Id, Username = e.UserName ?? "", Email = e.Email ?? ""});
+            var dtos = _mapper.Map<IEnumerable<UserDto>>(entities);
             
             return dtos;
         }

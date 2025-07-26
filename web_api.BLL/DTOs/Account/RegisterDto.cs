@@ -5,7 +5,7 @@ namespace web_api.BLL.DTOs.Account
     public class RegisterDto
     {
         public string Email { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
     
@@ -13,7 +13,7 @@ namespace web_api.BLL.DTOs.Account
     {
         public RegisterValidator()
         {
-            RuleFor(x => x.Username)
+            RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Username is required")
                 .MaximumLength(20).WithMessage("maximum length 20 characters");
             

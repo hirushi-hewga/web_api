@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using web_api.BLL.DTOs.Role;
@@ -8,10 +9,12 @@ namespace web_api.BLL.Services.Role
     public class RoleService : IRoleService
     {
         private readonly RoleManager<AppRole> _roleManager;
+        private readonly IMapper _mapper;
 
-        public RoleService(RoleManager<AppRole> roleManager)
+        public RoleService(RoleManager<AppRole> roleManager, IMapper mapper)
         {
             _roleManager = roleManager;
+            _mapper = mapper;
         }
         
         public async Task<bool> CreateAsync(RoleDto dto)
@@ -19,11 +22,7 @@ namespace web_api.BLL.Services.Role
             if (await _roleManager.RoleExistsAsync(dto.Name))
                 return false;
 
-            var entity = new AppRole
-            {
-                Id = dto.Id,
-                Name = dto.Name
-            };
+            var entity = _mapper.Map<AppRole>(dto);
             
             var result = await _roleManager.CreateAsync(entity);
             return result.Succeeded;
@@ -34,11 +33,7 @@ namespace web_api.BLL.Services.Role
             if (await _roleManager.RoleExistsAsync(dto.Name))
                 return false;
 
-            var entity = new AppRole
-            {
-                Id = dto.Id,
-                Name = dto.Name
-            };
+            var entity = _mapper.Map<AppRole>(dto);
             
             var result = await _roleManager.UpdateAsync(entity);
             return result.Succeeded;
@@ -64,11 +59,7 @@ namespace web_api.BLL.Services.Role
             if (entity == null)
                 return null;
             
-            var dto = new RoleDto
-            { 
-                Id = entity.Id, 
-                Name = entity.Name ?? string.Empty
-            };
+            var dto = _mapper.Map<RoleDto>(entity);
             
             return dto;
         }
@@ -77,8 +68,7 @@ namespace web_api.BLL.Services.Role
         {
             var entities = await _roleManager.Roles.ToListAsync();
 
-            var dtos = entities
-                .Select(e => new RoleDto { Id = e.Id, Name = e.Name ?? "" });
+            var dtos = _mapper.Map<List<RoleDto>>(entities);
             
             return dtos;
         }
