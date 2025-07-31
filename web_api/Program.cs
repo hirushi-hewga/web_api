@@ -10,6 +10,7 @@ using web_api.DAL;
 using web_api.DAL.Entities;
 using web_api.DataInitializer;
 using web_api.BLL.MapperProfiles;
+using web_api.BLL.Services.Manufactures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IManufactureService, ManufactureService>();
 
 builder.Services.AddControllers();
 
