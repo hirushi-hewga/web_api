@@ -29,6 +29,8 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<RoleMapperProfile>();
     cfg.AddProfile<UserMapperProfile>();
+    cfg.AddProfile<CarMapperProfile>();
+    cfg.AddProfile<ManufactureMapperProfile>();
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

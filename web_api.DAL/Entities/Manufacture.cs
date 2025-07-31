@@ -10,7 +10,7 @@ namespace web_api.DAL.Entities
         [Required]
         [MaxLength(255)]
         public required string Name { get; set; }
-        [MaxLength]
+        [MaxLength(10000)]
         public string? Description { get; set; }
         [MaxLength(255)]
         public string? Founder { get; set; }

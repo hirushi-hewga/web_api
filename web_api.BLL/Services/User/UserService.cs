@@ -41,27 +41,27 @@ namespace web_api.BLL.Services.User
                     || u.NormalizedEmail == dto.Email.ToUpper()) != null)
                 return false;
             
-            var user = await _userManager.FindByIdAsync(dto.Id);
-            user.UserName = dto.UserName;
-            user.Email = dto.Email;
+            var entity = await _userManager.FindByIdAsync(dto.Id);
+            entity.UserName = dto.UserName;
+            entity.Email = dto.Email;
 
             if (!string.IsNullOrEmpty(dto.Password) && !string.IsNullOrEmpty(dto.NewPassword))
             {
                 var hasher = new PasswordHasher<AppUser>();
-                var verifyResult = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+                var verifyResult = hasher.VerifyHashedPassword(entity, entity.PasswordHash, dto.Password);
                 if (verifyResult == PasswordVerificationResult.Failed)
                     return false;
                 
-                var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+                var removePasswordResult = await _userManager.RemovePasswordAsync(entity);
                 if (!removePasswordResult.Succeeded) 
                     return false;
                 
-                var addPasswordResult = await _userManager.AddPasswordAsync(user, dto.NewPassword);
+                var addPasswordResult = await _userManager.AddPasswordAsync(entity, dto.NewPassword);
                 if (!addPasswordResult.Succeeded) 
                     return false;
             }
             
-            var result = await _userManager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(entity);
             return result.Succeeded;
         }
 
@@ -85,12 +85,7 @@ namespace web_api.BLL.Services.User
             if (entity == null)
                 return null;
             
-            var dto = new UserDto
-            { 
-                Id = entity.Id, 
-                UserName = entity.UserName ?? "",
-                Email = entity.Email ?? "",
-            };
+            var dto = _mapper.Map<UserDto>(entity);
             
             return dto;
         }
