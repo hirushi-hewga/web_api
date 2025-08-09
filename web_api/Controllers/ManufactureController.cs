@@ -10,46 +10,49 @@ namespace web_api.Controllers
     [Route("api/manufacture")]
     public class ManufactureController : AppController
     {
-        private readonly IValidator<ManufactureDto> _manufactureValidator;
+        private readonly IValidator<ManufactureCreateDto> _manufactureCreateValidator;
+        private readonly IValidator<ManufactureUpdateDto> _manufactureUpdateValidator;
         private readonly IManufactureService _manufactureService;
 
-        public ManufactureController(IValidator<ManufactureDto> manufactureValidator, IManufactureService manufactureService)
+        public ManufactureController(IValidator<ManufactureCreateDto> manufactureCreateValidator,
+                                     IValidator<ManufactureUpdateDto> manufactureUpdateValidator,
+                                     IManufactureService manufactureService)
         {
-            _manufactureValidator = manufactureValidator;
+            _manufactureCreateValidator = manufactureCreateValidator;
+            _manufactureUpdateValidator = manufactureUpdateValidator;
             _manufactureService = manufactureService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ManufactureDto dto)
+        public async Task<IActionResult> CreateAsync([FromBody] ManufactureCreateDto dto)
         {
-            var validResult = await _manufactureValidator.ValidateAsync(dto);
+            var validResult = await _manufactureCreateValidator.ValidateAsync(dto);
 
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
             var result = await _manufactureService.CreateAsync(dto);
 
-            return result ? Ok("Manufacture created") : BadRequest("Manufacture not created");
+            return result ? Ok($"{dto.Name} created") : BadRequest("Manufacture not created");
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync([FromBody] ManufactureDto dto)
+        public async Task<IActionResult> UpdateAsync([FromBody] ManufactureUpdateDto dto)
         {
-            var validResult = await _manufactureValidator.ValidateAsync(dto);
+            var validResult = await _manufactureUpdateValidator.ValidateAsync(dto);
 
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
             var result = await _manufactureService.UpdateAsync(dto);
 
-            return result ? Ok("Manufacture created") : BadRequest("Manufacture not created");
+            return result ? Ok("Manufacture updated") : BadRequest("Manufacture not updated");
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync(string? id)
         {
-            var isValidId = ValidateId(id, out var message);
-            if (!isValidId)
+            if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
             var result = await _manufactureService.DeleteAsync(id);
@@ -59,19 +62,18 @@ namespace web_api.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var users = await _manufactureService.GetAllAsync();
-            return Ok(users);
+            var dtos = await _manufactureService.GetAllAsync();
+            return Ok(dtos);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetByIdAsync(string? id)
         {
-            var isValidId = ValidateId(id, out var message);
-            if (!isValidId)
+            if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
-            var user = await _manufactureService.GetByIdAsync(id);
-            return user == null ? BadRequest("Manufacture not found") : Ok(user);
+            var dto = await _manufactureService.GetByIdAsync(id);
+            return dto == null ? BadRequest("Manufacture not found") : Ok(dto);
         }
     }
 }

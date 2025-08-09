@@ -11,6 +11,10 @@ using web_api.DAL.Entities;
 using web_api.DataInitializer;
 using web_api.BLL.MapperProfiles;
 using web_api.BLL.Services.Manufactures;
+using Microsoft.Extensions.FileProviders;
+using web_api.BLL;
+using web_api.BLL.Services.Image;
+using web_api.BLL.Services.Cars;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,8 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IManufactureService, ManufactureService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ICarService, CarService>();
 
 builder.Services.AddControllers();
 
@@ -36,8 +42,8 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-//builder.Services.AddSwaggerGen();
+//builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -74,12 +80,28 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
+    //app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+// Static files
+var rootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+var imagesPath = Path.Combine(rootPath, Settings.ImagesPath);
+
+if (!Directory.Exists(rootPath))
+    Directory.CreateDirectory(rootPath);
+
+if (!Directory.Exists(imagesPath))
+    Directory.CreateDirectory(imagesPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(imagesPath),
+    RequestPath = "/images"
+});
 
 app.UseCors("localhost3000");
 

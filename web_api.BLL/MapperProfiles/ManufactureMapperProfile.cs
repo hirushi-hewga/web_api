@@ -15,6 +15,17 @@ namespace web_api.BLL.MapperProfiles
         {
             // ManufactureDto <-> Manufacture
             CreateMap<ManufactureDto, Manufacture>().ReverseMap();
+
+            // ManufactureCreateDto -> Manufacture
+            CreateMap<ManufactureCreateDto, Manufacture>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.Image, opt => opt.Ignore())
+                .ForMember(dest => dest.Cars, opt => opt.Ignore());
+
+            // ManufactureUpdateDto -> Manufacture
+            CreateMap<ManufactureUpdateDto, Manufacture>()
+                .ForMember(dest => dest.Image, opt => opt.Ignore())
+                .ForMember(dest => dest.Cars, opt => opt.Ignore());
         }
     }
 }

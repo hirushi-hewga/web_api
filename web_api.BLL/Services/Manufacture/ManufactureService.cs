@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using web_api.BLL.DTOs.Manufactures;
+using web_api.BLL.Services.Image;
 using web_api.DAL;
 using web_api.DAL.Entities;
 
@@ -15,38 +16,68 @@ namespace web_api.BLL.Services.Manufactures
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-        public ManufactureService(AppDbContext context, IMapper mapper)
+        public ManufactureService(AppDbContext context, IMapper mapper, IImageService imageService)
         {
             _context = context;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
-        public async Task<bool> CreateAsync(ManufactureDto dto)
+        public async Task<bool> CreateAsync(ManufactureCreateDto dto)
         {
-            if (await _context.Manufactures.AnyAsync(m => m.Name.ToUpper() == dto.Name!.ToUpper()))
-                return false;
-
             var entity = _mapper.Map<Manufacture>(dto);
+
+            if (dto.Image != null)
+            {
+                var imageName = await _imageService.SaveImageAsync(dto.Image, Settings.ManufacturesPath);
+                if (imageName != null)
+                {
+                    imageName = Path.Combine(Settings.ManufacturesPath, imageName);
+                }
+                entity.Image = imageName;
+            }
 
             await _context.Manufactures.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
 
-            return true;
+            return result != 0;
         }
 
-        public async Task<bool> UpdateAsync(ManufactureDto dto)
+        public async Task<bool> UpdateAsync(ManufactureUpdateDto dto)
         {
-            if (await _context.Manufactures.Where(m => m.Id != dto.Id)
-                .FirstOrDefaultAsync(m => m.Name.ToUpper() == dto.Name!.ToUpper()) != null)
+            var entity = await _context.Manufactures
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == dto.Id);
+            
+            if (entity == null)
+            {
                 return false;
+            }
 
-            var entity = _mapper.Map<Manufacture>(dto);
+            entity = _mapper.Map(dto, entity);
+
+            if (dto.Image != null)
+            {
+                var imageName = await _imageService.SaveImageAsync(dto.Image, Settings.ManufacturesPath);
+                if (imageName != null)
+                {
+                    imageName = Path.Combine(Settings.ManufacturesPath, imageName);
+                }
+
+                if (!string.IsNullOrEmpty(entity.Image) && !string.IsNullOrEmpty(imageName))
+                {
+                    _imageService.DeleteImage(entity.Image);
+                }
+
+                entity.Image = imageName;
+            }
 
             _context.Manufactures.Update(entity);
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
 
-            return true;
+            return result != 0;
         }
 
         public async Task<bool> DeleteAsync(string id)
@@ -55,9 +86,12 @@ namespace web_api.BLL.Services.Manufactures
 
             if (entity != null)
             {
+                if (!string.IsNullOrEmpty(entity.Image))
+                    _imageService.DeleteImage(entity.Image);
+
                 _context.Manufactures.Remove(entity);
-                await _context.SaveChangesAsync();
-                return true;
+                var result = await _context.SaveChangesAsync();
+                return result != 0;
             }
 
             return false;
