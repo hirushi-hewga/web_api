@@ -3,10 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace web_api.DAL.Entities
 {
-    public class Car
+    public class Car : BaseEntity<string>
     {
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public override string Id { get; set; } = Guid.NewGuid().ToString();
         [Required]
         [MaxLength(100)]
         public required string Model { get; set; }

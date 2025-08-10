@@ -1,20 +1,22 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using web_api.BLL;
 using web_api.BLL.DTOs.Account;
+using web_api.BLL.MapperProfiles;
 using web_api.BLL.Services.Account;
+using web_api.BLL.Services.Cars;
 using web_api.BLL.Services.Email;
+using web_api.BLL.Services.Image;
+using web_api.BLL.Services.Manufactures;
 using web_api.BLL.Services.Role;
 using web_api.BLL.Services.User;
 using web_api.DAL;
 using web_api.DAL.Entities;
+using web_api.DAL.Repositories.Cars;
+using web_api.DAL.Repositories.Manufactures;
 using web_api.DataInitializer;
-using web_api.BLL.MapperProfiles;
-using web_api.BLL.Services.Manufactures;
-using Microsoft.Extensions.FileProviders;
-using web_api.BLL;
-using web_api.BLL.Services.Image;
-using web_api.BLL.Services.Cars;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IManufactureService, ManufactureService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICarService, CarService>();
+
+// Add repositories
+builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddScoped<IManufactureRepository, ManufactureRepository>();
 
 builder.Services.AddControllers();
 
