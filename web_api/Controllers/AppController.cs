@@ -1,9 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using web_api.BLL.Services;
 
 namespace web_api.Controllers
 {
     public class AppController : ControllerBase
     {
+        protected IActionResult CreateActionResult(ServiceResponse responce)
+        {
+            return responce.IsSuccess ? Ok(responce) : BadRequest(responce);
+        }
+
         protected bool ValidateId(string? id, out string message)
         {
             if (string.IsNullOrEmpty(id))

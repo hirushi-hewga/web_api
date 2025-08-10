@@ -21,8 +21,8 @@ namespace web_api.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var roles = await _roleService.GetAllAsync();
-            return Ok(roles);
+            var response = await _roleService.GetAllAsync();
+            return CreateActionResult(response);
         }
         
         [HttpGet]
@@ -32,9 +32,9 @@ namespace web_api.Controllers
             if (!isValidId)
                 return BadRequest(message);
             
-            var role = await _roleService.GetByIdAsync(id);
-            
-            return role == null ? BadRequest("Role not found") : Ok(role);
+            var response = await _roleService.GetByIdAsync(id);
+
+            return CreateActionResult(response);
         }
         
         [HttpPost]
@@ -44,8 +44,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
             
-            var result = await _roleService.CreateAsync(dto);
-            return result ? Ok("Role created") : BadRequest("Role not created");
+            var response = await _roleService.CreateAsync(dto);
+            return CreateActionResult(response);
         }
         
         [HttpPut]
@@ -59,8 +59,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
             
-            var result = await _roleService.UpdateAsync(dto);
-            return result ? Ok("Role updated") : BadRequest("Role not updated");
+            var response = await _roleService.UpdateAsync(dto);
+            return CreateActionResult(response);
         }
         
         [HttpDelete]
@@ -70,9 +70,9 @@ namespace web_api.Controllers
             if (!isValidId)
                 return BadRequest(message);
 
-            var result = await _roleService.DeleteAsync(id);
-            
-            return result ? Ok("Role deleted") : BadRequest("Role not deleted");
+            var response = await _roleService.DeleteAsync(id);
+
+            return CreateActionResult(response);
         }
     }
 }
