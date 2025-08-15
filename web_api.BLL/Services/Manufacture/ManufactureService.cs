@@ -28,7 +28,7 @@ namespace web_api.BLL.Services.Manufactures
             _mapper = mapper;
         }
 
-        public async Task<bool> CreateAsync(ManufactureCreateDto dto)
+        public async Task<ServiceResponse> CreateAsync(ManufactureCreateDto dto)
         {
             var entity = _mapper.Map<Manufacture>(dto);
 
@@ -43,19 +43,20 @@ namespace web_api.BLL.Services.Manufactures
             }
 
             var result = await _manufactureRepository.CreateAsync(entity);
-            return result;
+            if (result)
+                return new ServiceResponse($"Виробника '{dto.Name}' успішно створено", true);
+
+            return new ServiceResponse("Виробника не створено");
         }
 
-        public async Task<bool> UpdateAsync(ManufactureUpdateDto dto)
+        public async Task<ServiceResponse> UpdateAsync(ManufactureUpdateDto dto)
         {
             var entity = await _manufactureRepository.GetAll()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == dto.Id);
             
             if (entity == null)
-            {
-                return false;
-            }
+                return new ServiceResponse("Виробника не знайдено");
 
             entity = _mapper.Map(dto, entity);
 
@@ -76,44 +77,48 @@ namespace web_api.BLL.Services.Manufactures
             }
 
             var result = await _manufactureRepository.UpdateAsync(entity);
-            return result;
+            if (result)
+                return new ServiceResponse($"Виробника {entity.Name} успішно оновлено", true);
+
+            return new ServiceResponse("Виробника не оновлено");
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<ServiceResponse> DeleteAsync(string id)
         {
             var entity = await _manufactureRepository.GetByIdAsync(id);
 
-            if (entity != null)
-            {
-                if (!string.IsNullOrEmpty(entity.Image))
-                    _imageService.DeleteImage(entity.Image);
+            if (entity == null)
+                return new ServiceResponse("Виробника не знайдено");
 
-                var result = await _manufactureRepository.DeleteAsync(entity);
-                return result;
-            }
+            if (!string.IsNullOrEmpty(entity.Image))
+                _imageService.DeleteImage(entity.Image);
 
-            return false;
+            var result = await _manufactureRepository.DeleteAsync(entity);
+            if (result)
+                return new ServiceResponse("Виробника видалено");
+
+            return new ServiceResponse("Виробника не видалено");
         }
 
-        public async Task<IEnumerable<ManufactureDto>> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync()
         {
             var entities = await _manufactureRepository.GetAll().ToListAsync();
 
             var dtos = _mapper.Map<IEnumerable<ManufactureDto>>(entities);
 
-            return dtos;
+            return new ServiceResponse("Виробників отримано", true, dtos);
         }
 
-        public async Task<ManufactureDto?> GetByIdAsync(string id)
+        public async Task<ServiceResponse> GetByIdAsync(string id)
         {
             var entity = await _manufactureRepository.GetByIdAsync(id);
 
             if (entity == null)
-                return null;
+                return new ServiceResponse("Виробника не знайдено");
 
             var dto = _mapper.Map<ManufactureDto>(entity);
 
-            return dto;
+            return new ServiceResponse("Виробника отримано", true, dto);
         }
     }
 }

@@ -248,11 +248,9 @@ namespace web_api.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.PrimitiveCollection<string[]>("Images")
-                        .HasColumnType("text[]");
-
                     b.Property<string>("ManufactureId")
-                        .HasColumnType("text");
+                        .HasColumnType("text"); 
+
 
                     b.Property<string>("Model")
                         .IsRequired()

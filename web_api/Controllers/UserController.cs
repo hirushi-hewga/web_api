@@ -29,8 +29,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _userService.CreateAsync(dto);
-            return result ? Ok("User created") : BadRequest("User not created");
+            var response = await _userService.CreateAsync(dto);
+            return CreateActionResult(response);
         }
 
         [HttpPut]
@@ -40,8 +40,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _userService.UpdateAsync(dto);
-            return result ? Ok("User updated") : BadRequest("User not updated");
+            var response = await _userService.UpdateAsync(dto);
+            return CreateActionResult(response);
         }
 
         [HttpDelete]
@@ -51,15 +51,15 @@ namespace web_api.Controllers
             if (!isValidId)
                 return BadRequest(message);
             
-            var result = await _userService.DeleteAsync(id);
-            return result ? Ok("User deleted") : BadRequest("User not deleted");
+            var response = await _userService.DeleteAsync(id);
+            return CreateActionResult(response);
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var users = await _userService.GetAllAsync();
-            return Ok(users);
+            var response = await _userService.GetAllAsync();
+            return CreateActionResult(response);
         }
 
         [HttpGet]
@@ -69,8 +69,8 @@ namespace web_api.Controllers
             if (!isValidId)
                 return BadRequest(message);
             
-            var user = await _userService.GetByIdAsync(id);
-            return user == null ? BadRequest("User not found") : Ok(user);
+            var response = await _userService.GetByIdAsync(id);
+            return CreateActionResult(response);
         }
     }
 }

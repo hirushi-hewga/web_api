@@ -4,11 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using web_api.DAL.Entities;
 
 namespace web_api.BLL.Services.Image
 {
     public class ImageService : IImageService
     {
+        private readonly string ImagesPath;
+
+        public ImageService()
+        {
+            ImagesPath = Path.Combine(Settings.FilesRootPath, "wwwroot", Settings.ImagesPath);
+        }
+
         public async Task<string?> SaveImageAsync(IFormFile image, string directoryPath)
         {
             try
@@ -19,8 +27,8 @@ namespace web_api.BLL.Services.Image
                     return null;
                 }
 
-                string rootPath = Path.Combine(Settings.FilesRootPath, "wwwroot", Settings.ImagesPath);
-                string workPath = Path.Combine(rootPath, directoryPath);
+                
+                string workPath = Path.Combine(ImagesPath, directoryPath);
                 string imageName = $"{Guid.NewGuid()}.{types[1]}";
                 string imagePath = Path.Combine(workPath, imageName);
 
@@ -45,8 +53,7 @@ namespace web_api.BLL.Services.Image
         {
             try
             {
-                string rootPath = Path.Combine(Settings.FilesRootPath, "wwwroot", Settings.ImagesPath);
-                string path = Path.Combine(rootPath, filePath);
+                string path = Path.Combine(ImagesPath, filePath);
 
                 if (File.Exists(path))
                 {
@@ -56,6 +63,35 @@ namespace web_api.BLL.Services.Image
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+        }
+
+        public async Task<List<CarImage>> SaveCarImagesAsync(IEnumerable<IFormFile> images, string directoryPath)
+        {
+            var carImages = new List<CarImage>();
+
+            foreach (var image in images)
+            {
+                var imageName = await SaveImageAsync(image, directoryPath);
+                if (imageName != null)
+                {
+                    var carImage = new CarImage
+                    {
+                        Name = imageName,
+                        Path = directoryPath
+                    };
+                    carImages.Add(carImage);
+                }
+            }
+            return carImages;
+        }
+
+        public void CreateDirectory(string path)
+        {
+            path = Path.Combine(ImagesPath, path);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
             }
         }
     }

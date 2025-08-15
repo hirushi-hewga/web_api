@@ -17,80 +17,87 @@ namespace web_api.BLL.Services.User
             _mapper = mapper;
         }
         
-        public async Task<bool> CreateAsync(UserCreateDto dto)
+        public async Task<ServiceResponse> CreateAsync(UserCreateDto dto)
         {
-            if (await _userManager.FindByEmailAsync(dto.Email) != null
-                || await _userManager.FindByNameAsync(dto.UserName) != null)
-                return false;
+            if (await _userManager.FindByEmailAsync(dto.Email) != null)
+                return new ServiceResponse("Користувач із таким email вже існує");
 
-            var entity = new AppUser
-            {
-                Id = dto.Id,
-                UserName = dto.UserName,
-                Email = dto.Email
-            };
+            if (await _userManager.FindByNameAsync(dto.UserName) != null)
+                return new ServiceResponse("Користувач із таким ім'ям вже існує");
+
+            var entity = _mapper.Map<AppUser>(dto);
             
             var result = await _userManager.CreateAsync(entity, dto.Password);
-            return result.Succeeded;
+            if (result.Succeeded)
+                return new ServiceResponse("Користувача успішно створено", true);
+
+            return new ServiceResponse(result.Errors.First().Description);
         }
 
-        public async Task<bool> UpdateAsync(UserUpdateDto dto)
+        public async Task<ServiceResponse> UpdateAsync(UserUpdateDto dto)
         {
-            if (_userManager.Users.Where(u => u.Id != dto.Id)
-                .FirstOrDefault(u => u.NormalizedUserName == dto.UserName.ToUpper()
-                    || u.NormalizedEmail == dto.Email.ToUpper()) != null)
-                return false;
+            if (await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Id != dto.Id && u.NormalizedUserName == dto.UserName.ToUpper()) != null)
+                return new ServiceResponse("Користувач із таким email вже існує");
+
+            if (await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Id != dto.Id && u.NormalizedEmail == dto.Email.ToUpper()) != null)
+                return new ServiceResponse("Користувач із таким ім'ям вже існує");
             
             var entity = await _userManager.FindByIdAsync(dto.Id);
-            entity.UserName = dto.UserName;
-            entity.Email = dto.Email;
+            _mapper.Map(entity, dto);
 
             if (!string.IsNullOrEmpty(dto.Password) && !string.IsNullOrEmpty(dto.NewPassword))
             {
                 var hasher = new PasswordHasher<AppUser>();
                 var verifyResult = hasher.VerifyHashedPassword(entity, entity.PasswordHash, dto.Password);
                 if (verifyResult == PasswordVerificationResult.Failed)
-                    return false;
-                
+                    return new ServiceResponse("Неправильний поточний пароль");
+
                 var removePasswordResult = await _userManager.RemovePasswordAsync(entity);
                 if (!removePasswordResult.Succeeded) 
-                    return false;
-                
+                    return new ServiceResponse($"Помилка видалення пароля: {string.Join(", ", removePasswordResult.Errors.Select(e => e.Description))}");
+
                 var addPasswordResult = await _userManager.AddPasswordAsync(entity, dto.NewPassword);
                 if (!addPasswordResult.Succeeded) 
-                    return false;
+                    return new ServiceResponse($"Помилка встановлення нового пароля: {string.Join(", ", addPasswordResult.Errors.Select(e => e.Description))}");
             }
             
             var result = await _userManager.UpdateAsync(entity);
-            return result.Succeeded;
+            if (result.Succeeded)
+                return new ServiceResponse("Користувача успішно оновлено", true);
+
+            return new ServiceResponse(result.Errors.First().Description);
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<ServiceResponse> DeleteAsync(string id)
         {
             var entity = await _userManager.FindByIdAsync(id);
             
-            if (entity != null)
-            {
-                var result = await _userManager.DeleteAsync(entity);
-                return result.Succeeded;
-            }
-            
-            return false;
+            if (entity == null)
+                return new ServiceResponse("Користувача не знайдено");
+
+            var result = await _userManager.DeleteAsync(entity);
+
+            if (result.Succeeded)
+                return new ServiceResponse("Користувача успішно видалено", true);
+
+            return new ServiceResponse(result.Errors.First().Description);
         }
 
-        public async Task<UserDto?> GetByIdAsync(string id)
+        public async Task<ServiceResponse> GetByIdAsync(string id)
         {
             var entity = await _userManager.FindByIdAsync(id);
 
             if (entity == null)
-                return null;
-            
+                return new ServiceResponse("Користувача не знайдено");
+
             var dto = _mapper.Map<UserDto>(entity);
-            
-            return dto;
+
+            return new ServiceResponse("Користувача отримано", true, dto);
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync()
         {
             var entities = await _userManager.Users
                 .Include(u => u.UserRoles)
@@ -99,7 +106,7 @@ namespace web_api.BLL.Services.User
 
             var dtos = _mapper.Map<IEnumerable<UserDto>>(entities);
             
-            return dtos;
+            return new ServiceResponse("Користувачів отримано", true, dtos);
         }
     }
 }

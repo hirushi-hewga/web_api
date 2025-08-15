@@ -21,10 +21,10 @@ namespace web_api.DAL.Entities
         public string? Gearbox { get; set; }
         [MaxLength(50)]
         public string? Color { get; set; }
-        public IEnumerable<string>? Images { get; set; }
 
         [ForeignKey("Manufacture")]
         public string? ManufactureId { get; set; }
         public Manufacture? Manufacture { get; set; }
+        public IEnumerable<CarImage> Images { get; set; } = [];
     }
 }

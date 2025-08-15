@@ -9,10 +9,10 @@ namespace web_api.BLL.Services.Manufactures
 {
     public interface IManufactureService
     {
-        Task<bool> CreateAsync(ManufactureCreateDto dto);
-        Task<bool> UpdateAsync(ManufactureUpdateDto dto);
-        Task<bool> DeleteAsync(string id);
-        Task<ManufactureDto?> GetByIdAsync(string id);
-        Task<IEnumerable<ManufactureDto>> GetAllAsync();
+        Task<ServiceResponse> CreateAsync(ManufactureCreateDto dto);
+        Task<ServiceResponse> UpdateAsync(ManufactureUpdateDto dto);
+        Task<ServiceResponse> DeleteAsync(string id);
+        Task<ServiceResponse> GetByIdAsync(string id);
+        Task<ServiceResponse> GetAllAsync();
     }
 }

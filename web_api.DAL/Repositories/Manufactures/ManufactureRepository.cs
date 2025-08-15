@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,19 @@ namespace web_api.DAL.Repositories.Manufactures
         : GenericRepository<Manufacture, string>,
         IManufactureRepository
     {
+        private readonly AppDbContext _context;
+
         public ManufactureRepository(AppDbContext context)
-            : base(context){}
+            : base(context)
+        {
+            _context = context;
+        }
+
+        public async Task<Manufacture?> GetByNameAsync(string name)
+        {
+            var entity = await _context.Manufactures
+                .FirstOrDefaultAsync(e => e.Name.ToLower() == name.ToLower());
+            return entity;
+        }
     }
 }

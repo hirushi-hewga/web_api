@@ -31,9 +31,9 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _manufactureService.CreateAsync(dto);
+            var response = await _manufactureService.CreateAsync(dto);
 
-            return result ? Ok($"{dto.Name} created") : BadRequest("Manufacture not created");
+            return CreateActionResult(response);
         }
 
         [HttpPut]
@@ -44,9 +44,9 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _manufactureService.UpdateAsync(dto);
+            var response = await _manufactureService.UpdateAsync(dto);
 
-            return result ? Ok("Manufacture updated") : BadRequest("Manufacture not updated");
+            return CreateActionResult(response);
         }
 
         [HttpDelete]
@@ -55,15 +55,15 @@ namespace web_api.Controllers
             if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
-            var result = await _manufactureService.DeleteAsync(id);
-            return result ? Ok("Manufacture deleted") : BadRequest("Manufacture not deleted");
+            var response = await _manufactureService.DeleteAsync(id);
+            return CreateActionResult(response);
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var dtos = await _manufactureService.GetAllAsync();
-            return Ok(dtos);
+            var response = await _manufactureService.GetAllAsync();
+            return CreateActionResult(response);
         }
 
         [HttpGet]
@@ -72,8 +72,8 @@ namespace web_api.Controllers
             if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
-            var dto = await _manufactureService.GetByIdAsync(id);
-            return dto == null ? BadRequest("Manufacture not found") : Ok(dto);
+            var response = await _manufactureService.GetByIdAsync(id);
+            return CreateActionResult(response);
         }
     }
 }

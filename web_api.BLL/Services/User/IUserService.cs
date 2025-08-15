@@ -4,10 +4,10 @@ namespace web_api.BLL.Services.User
 {
     public interface IUserService
     {
-        Task<bool> CreateAsync(UserCreateDto dto);
-        Task<bool> UpdateAsync(UserUpdateDto dto);
-        Task<bool> DeleteAsync(string id);
-        Task<UserDto?> GetByIdAsync(string id);
-        Task<IEnumerable<UserDto>> GetAllAsync();
+        Task<ServiceResponse> CreateAsync(UserCreateDto dto);
+        Task<ServiceResponse> UpdateAsync(UserUpdateDto dto);
+        Task<ServiceResponse> DeleteAsync(string id);
+        Task<ServiceResponse> GetByIdAsync(string id);
+        Task<ServiceResponse> GetAllAsync();
     }
 }

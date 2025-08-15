@@ -11,6 +11,7 @@ namespace web_api.DAL
         public AppDbContext(DbContextOptions options) : base(options) {}
         
         public DbSet<Car> Cars { get; set; }
+        public DbSet<CarImage> CarImages { get; set; }
         public DbSet<Manufacture> Manufactures { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

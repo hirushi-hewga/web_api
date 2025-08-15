@@ -11,14 +11,14 @@ namespace web_api.BLL.DTOs.Cars
 {
     public class CarCreateDto
     {
-        public string? Model { get; set; } = string.Empty;
-        public string? Brand { get; set; } = string.Empty;
+        public required string Model { get; set; }
+        public required string Brand { get; set; }
         public int Year { get; set; } = 0;
         public decimal? Price { get; set; }
-        public string? Gearbox { get; set; } = string.Empty;
-        public string? Color { get; set; } = string.Empty;
-        public IEnumerable<IFormFile>? Images { get; set; }
-        public ManufactureDto? Manufacture { get; set; }
+        public string? Gearbox { get; set; }
+        public string? Color { get; set; }
+        public string? Manufacture { get; set; }
+        public IEnumerable<IFormFile>? Images { get; set; } = [];
     }
 
     public class CarCreateValidator : AbstractValidator<CarCreateDto>

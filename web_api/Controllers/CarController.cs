@@ -34,9 +34,9 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _carService.CreateAsync(dto);
+            var response = await _carService.CreateAsync(dto);
 
-            return result ? Ok($"Car created") : BadRequest("Car not created");
+            return CreateActionResult(response);
         }
 
         [HttpPut]
@@ -47,9 +47,9 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
 
-            var result = await _carService.UpdateAsync(dto);
+            var response = await _carService.UpdateAsync(dto);
 
-            return result ? Ok("Car updated") : BadRequest("Car not updated");
+            return CreateActionResult(response);
         }
 
         [HttpDelete]
@@ -58,15 +58,15 @@ namespace web_api.Controllers
             if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
-            var result = await _carService.DeleteAsync(id);
-            return result ? Ok("Car deleted") : BadRequest("Car not deleted");
+            var response = await _carService.DeleteAsync(id);
+            return CreateActionResult(response);
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var dtos = await _carService.GetAllAsync();
-            return Ok(dtos);
+            var response = await _carService.GetAllAsync();
+            return CreateActionResult(response);
         }
 
         [HttpGet]
@@ -75,8 +75,8 @@ namespace web_api.Controllers
             if (!ValidateId(id, out var message))
                 return BadRequest(message);
 
-            var dto = await _carService.GetByIdAsync(id);
-            return dto == null ? BadRequest("Car not found") : Ok(dto);
+            var response = await _carService.GetByIdAsync(id);
+            return CreateActionResult(response);
         }
     }
 }

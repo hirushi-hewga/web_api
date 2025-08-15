@@ -9,10 +9,10 @@ namespace web_api.BLL.Services.Cars
 {
     public interface ICarService
     {
-        Task<bool> CreateAsync(CarCreateDto dto);
-        Task<bool> UpdateAsync(CarUpdateDto dto);
-        Task<bool> DeleteAsync(string id);
-        Task<CarDto?> GetByIdAsync(string id);
-        Task<IEnumerable<CarDto>> GetAllAsync();
+        Task<ServiceResponse> CreateAsync(CarCreateDto dto);
+        Task<ServiceResponse> UpdateAsync(CarUpdateDto dto);
+        Task<ServiceResponse> DeleteAsync(string id);
+        Task<ServiceResponse> GetByIdAsync(string id);
+        Task<ServiceResponse> GetAllAsync();
     }
 }

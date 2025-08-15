@@ -11,5 +11,6 @@ namespace web_api.BLL
         public static string FilesRootPath = string.Empty;
         public const string ImagesPath = "images";
         public const string ManufacturesPath = "manufactures";
+        public const string CarsPath = "cars";
     }
 }

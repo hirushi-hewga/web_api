@@ -13,11 +13,12 @@ namespace web_api.BLL.MapperProfiles
     {
         public CarMapperProfile()
         {
-            // CarDto <-> Car
-            CreateMap<CarDto, Car>().ReverseMap();
+            // Car -> CarDto
+            CreateMap<Car, CarDto>()
+                .ForMember(dest => dest.Manufacture, opt => opt.MapFrom(src => src.Manufacture == null ? "" : src.Manufacture.Name))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(i => Path.Combine(i.Path, i.Name))));
 
             CreateMap<CarCreateDto, Car>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
                 .ForMember(dest => dest.Images, opt => opt.Ignore())
                 .ForMember(dest => dest.Manufacture, opt => opt.Ignore());
 
