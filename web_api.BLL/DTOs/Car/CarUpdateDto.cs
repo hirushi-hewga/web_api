@@ -11,15 +11,15 @@ namespace web_api.BLL.DTOs.Cars
 {
     public class CarUpdateDto
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string? Model { get; set; } = string.Empty;
-        public string? Brand { get; set; } = string.Empty;
+        public string Id { get; set; }
+        public string? Model { get; set; }
+        public string? Brand { get; set; }
         public int Year { get; set; } = 0;
         public decimal? Price { get; set; }
-        public string? Gearbox { get; set; } = string.Empty;
-        public string? Color { get; set; } = string.Empty;
-        public IEnumerable<IFormFile>? Images { get; set; }
-        public ManufactureDto? Manufacture { get; set; }
+        public string? Gearbox { get; set; }
+        public string? Color { get; set; }
+        public string? Manufacture { get; set; }
+        public IEnumerable<IFormFile>? Images { get; set; } = [];
     }
 
     public class CarUpdateValidator : AbstractValidator<CarUpdateDto>

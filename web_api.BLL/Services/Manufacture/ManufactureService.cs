@@ -46,7 +46,7 @@ namespace web_api.BLL.Services.Manufactures
             if (result)
                 return new ServiceResponse($"Виробника '{dto.Name}' успішно створено", true);
 
-            return new ServiceResponse("Виробника не створено");
+            return new ServiceResponse("Не вдалося створити виробника");
         }
 
         public async Task<ServiceResponse> UpdateAsync(ManufactureUpdateDto dto)
@@ -80,7 +80,7 @@ namespace web_api.BLL.Services.Manufactures
             if (result)
                 return new ServiceResponse($"Виробника {entity.Name} успішно оновлено", true);
 
-            return new ServiceResponse("Виробника не оновлено");
+            return new ServiceResponse("Не вдалося оновити виробника");
         }
 
         public async Task<ServiceResponse> DeleteAsync(string id)
@@ -97,7 +97,7 @@ namespace web_api.BLL.Services.Manufactures
             if (result)
                 return new ServiceResponse("Виробника видалено");
 
-            return new ServiceResponse("Виробника не видалено");
+            return new ServiceResponse("Не вдалося видалити виробника");
         }
 
         public async Task<ServiceResponse> GetAllAsync()

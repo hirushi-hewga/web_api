@@ -94,5 +94,14 @@ namespace web_api.BLL.Services.Image
                 Directory.CreateDirectory(path);
             }
         }
+
+        public void DeleteDirectory(string path)
+        {
+            path = Path.Combine(ImagesPath, path);
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
     }
 }

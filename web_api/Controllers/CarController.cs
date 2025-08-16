@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using web_api.BLL.DTOs.Cars;
 using web_api.BLL.DTOs.Manufactures;
+using web_api.BLL.Services;
 using web_api.BLL.Services.Cars;
 using web_api.BLL.Services.Manufactures;
 using web_api.DAL;
@@ -76,6 +77,48 @@ namespace web_api.Controllers
                 return BadRequest(message);
 
             var response = await _carService.GetByIdAsync(id);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedAsync(int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedAsync(pageNumber, pageSize);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged/by-year")]
+        public async Task<IActionResult> GetPagedByYearAsync(int? year, int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedByYearAsync(pageNumber, pageSize, year);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged/by-manufacture")]
+        public async Task<IActionResult> GetPagedByManufactureAsync(string? manufacture, int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedByManufactureAsync(pageNumber, pageSize, manufacture);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged/by-gearbox")]
+        public async Task<IActionResult> GetPagedByGearBoxAsync(string? gearbox, int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedByGearBoxAsync(pageNumber, pageSize, gearbox);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged/by-color")]
+        public async Task<IActionResult> GetPagedByColorAsync(string? color, int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedByColorAsync(pageNumber, pageSize, color);
+            return CreateActionResult(response);
+        }
+
+        [HttpGet("paged/by-model")]
+        public async Task<IActionResult> GetPagedByModelAsync(string? model, int pageNumber = 1, int pageSize = 10)
+        {
+            var response = await _carService.GetPagedByModelAsync(pageNumber, pageSize, model);
             return CreateActionResult(response);
         }
     }

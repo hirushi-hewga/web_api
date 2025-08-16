@@ -13,6 +13,7 @@ namespace web_api.BLL.Services.Image
         Task<string?> SaveImageAsync(IFormFile image, string directoryPath);
         void DeleteImage(string filePath);
         void CreateDirectory(string path);
+        void DeleteDirectory(string path);
         Task<List<CarImage>> SaveCarImagesAsync(IEnumerable<IFormFile> images, string directoryPath);
     }
 }
