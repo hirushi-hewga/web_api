@@ -1,20 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using web_api.BLL.DTOs;
 using web_api.BLL.DTOs.Cars;
-using web_api.BLL.DTOs.Manufactures;
 using web_api.BLL.Services.Image;
-using web_api.DAL;
 using web_api.DAL.Entities;
 using web_api.DAL.Repositories.Cars;
 using web_api.DAL.Repositories.Manufactures;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace web_api.BLL.Services.Cars
 {
@@ -156,107 +147,37 @@ namespace web_api.BLL.Services.Cars
             return result;
         }
 
-        public async Task<ServiceResponse> GetPagedAsync(int pageNumber, int pageSize)
+        public async Task<ServiceResponse> GetPagedAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize)
         {
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture);
-
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
-        }
-
-        public async Task<ServiceResponse> GetPagedByYearAsync(int pageNumber, int pageSize, int? year)
-        {
-            if (year == null)
-                return new ServiceResponse("Рік не вказано");
+            if (pageNumber < 1 || pageSize < 1)
+                return new ServiceResponse("Invalid pageNumber or pageSize.");
 
             var entities = _carRepository
                 .GetAll()
                 .Include(e => e.Images)
                 .Include(e => e.Manufacture)
-                .Where(c => c.Year == year);
+                .AsQueryable();
 
-            if (!entities.Any())
-                return new ServiceResponse("Автомобілі не знайдено");
+            if (year != null)
+                entities = entities.Where(c => c.Year == year);
 
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
-        }
+            if (!string.IsNullOrEmpty(manufacture))
+                entities = entities.Where(c => c.Manufacture != null && c.Manufacture.Name.Contains(manufacture, StringComparison.OrdinalIgnoreCase));
 
-        public async Task<ServiceResponse> GetPagedByManufactureAsync(int pageNumber, int pageSize, string? manufacture)
-        {
-            if (string.IsNullOrEmpty(manufacture))
-                return new ServiceResponse("Виробника не вказано");
+            if (!string.IsNullOrEmpty(gearbox))
+                entities = entities.Where(c => c.Gearbox != null && c.Gearbox.Contains(gearbox, StringComparison.OrdinalIgnoreCase));
 
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .Where(c => c.Manufacture != null && c.Manufacture.Name == manufacture);
+            if (!string.IsNullOrEmpty(color))
+                entities = entities.Where(c => c.Color != null && c.Color.Contains(color, StringComparison.OrdinalIgnoreCase));
 
-            if (!entities.Any())
-                return new ServiceResponse("Автомобілі не знайдено");
+            if (!string.IsNullOrEmpty(model))
+            {
+                var keywords = model.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                entities = entities.Where(c => keywords.Any(k => c.Model.Contains(k, StringComparison.OrdinalIgnoreCase)));
+            }
 
             var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
-        }
-
-        public async Task<ServiceResponse> GetPagedByGearBoxAsync(int pageNumber, int pageSize, string? gearbox)
-        {
-            if (string.IsNullOrEmpty(gearbox))
-                return new ServiceResponse("Коробку передач не вказано");
-
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .Where(c => c.Gearbox == gearbox);
-
-            if (!entities.Any())
-                return new ServiceResponse("Автомобілі не знайдено");
-
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
-        }
-
-        public async Task<ServiceResponse> GetPagedByColorAsync(int pageNumber, int pageSize, string? color)
-        {
-            if (string.IsNullOrEmpty(color))
-                return new ServiceResponse("Коробку передач не вказано");
-
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .Where(c => c.Color == color);
-
-            if (!entities.Any())
-                return new ServiceResponse("Автомобілі не знайдено");
-
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
-        }
-
-        public async Task<ServiceResponse> GetPagedByModelAsync(int pageNumber, int pageSize, string? model)
-        {
-            if (string.IsNullOrEmpty(model))
-                return new ServiceResponse("Коробку передач не вказано");
-
-            var keywords = model.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .Where(c => keywords.Any(k => c.Model.Contains(k, StringComparison.OrdinalIgnoreCase)));
-
-            if (!entities.Any())
-                return new ServiceResponse("Автомобілі не знайдено");
-
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse("Автомобілі отримано", true, result);
+            return new ServiceResponse(result.Items.Any() ? "Автомобілі отримано" : "Автомобілі не знайдено", true, result);
         }
     }
 }

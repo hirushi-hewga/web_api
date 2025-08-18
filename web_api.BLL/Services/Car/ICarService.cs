@@ -14,11 +14,6 @@ namespace web_api.BLL.Services.Cars
         Task<ServiceResponse> DeleteAsync(string id);
         Task<ServiceResponse> GetByIdAsync(string id);
         Task<ServiceResponse> GetAllAsync();
-        Task<ServiceResponse> GetPagedAsync(int pageNumber, int pageSize);
-        Task<ServiceResponse> GetPagedByYearAsync(int pageNumber, int pageSize, int? year);
-        Task<ServiceResponse> GetPagedByManufactureAsync(int pageNumber, int pageSize, string? manufacture);
-        Task<ServiceResponse> GetPagedByGearBoxAsync(int pageNumber, int pageSize, string? gearbox);
-        Task<ServiceResponse> GetPagedByColorAsync(int pageNumber, int pageSize, string? color);
-        Task<ServiceResponse> GetPagedByModelAsync(int pageNumber, int pageSize, string? model);
+        Task<ServiceResponse> GetPagedAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize);
     }
 }
