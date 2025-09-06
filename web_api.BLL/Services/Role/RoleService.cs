@@ -36,7 +36,12 @@ namespace web_api.BLL.Services.Role
             if (await _roleManager.RoleExistsAsync(dto.Name))
                 return new ServiceResponse($"Роль '{dto.Name}' вже існує");
 
-            var entity = _mapper.Map<AppRole>(dto);
+            var role = await _roleManager.FindByIdAsync(dto.Id);
+
+            if (role == null)
+                return new ServiceResponse("Роль не знайдено");
+
+            var entity = _mapper.Map(dto, role);
             
             var result = await _roleManager.UpdateAsync(entity);
             if (result.Succeeded)

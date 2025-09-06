@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using web_api.BLL.DTOs.User;
+using web_api.BLL.Services.Image;
 using web_api.DAL.Entities;
 
 namespace web_api.BLL.Services.User
@@ -10,11 +12,13 @@ namespace web_api.BLL.Services.User
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-        public UserService(UserManager<AppUser> userManager, IMapper mapper)
+        public UserService(UserManager<AppUser> userManager, IMapper mapper, IImageService imageService)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _imageService = imageService;
         }
         
         public async Task<ServiceResponse> CreateAsync(UserCreateDto dto)
@@ -26,8 +30,22 @@ namespace web_api.BLL.Services.User
                 return new ServiceResponse("Користувач із таким ім'ям вже існує");
 
             var entity = _mapper.Map<AppUser>(dto);
+
+            if (dto.Image != null)
+            {
+                var imageName = await _imageService.SaveImageAsync(dto.Image, Settings.UsersPath);
+                if (imageName != null)
+                {
+                    imageName = Path.Combine(Settings.UsersPath, imageName);
+                }
+                entity.Image = imageName;
+            }
             
             var result = await _userManager.CreateAsync(entity, dto.Password);
+            if (!result.Succeeded)
+                return new ServiceResponse(result.Errors.First().Description);
+
+            result = await _userManager.AddToRolesAsync(entity, dto.Roles);
             if (result.Succeeded)
                 return new ServiceResponse("Користувача успішно створено", true);
 
@@ -36,6 +54,10 @@ namespace web_api.BLL.Services.User
 
         public async Task<ServiceResponse> UpdateAsync(UserUpdateDto dto)
         {
+            var user = await _userManager.FindByIdAsync(dto.Id);
+            if (user == null)
+                return new ServiceResponse("Користувача не знайдено");
+
             if (await _userManager.Users
                 .FirstOrDefaultAsync(u => u.Id != dto.Id && u.NormalizedUserName == dto.UserName.ToUpper()) != null)
                 return new ServiceResponse("Користувач із таким email вже існує");
@@ -44,8 +66,23 @@ namespace web_api.BLL.Services.User
                 .FirstOrDefaultAsync(u => u.Id != dto.Id && u.NormalizedEmail == dto.Email.ToUpper()) != null)
                 return new ServiceResponse("Користувач із таким ім'ям вже існує");
             
-            var entity = await _userManager.FindByIdAsync(dto.Id);
-            _mapper.Map(entity, dto);
+            var entity = _mapper.Map(dto, user);
+
+            if (dto.Image != null)
+            {
+                var imageName = await _imageService.SaveImageAsync(dto.Image, Settings.UsersPath);
+                if (imageName != null)
+                {
+                    imageName = Path.Combine(Settings.UsersPath, imageName);
+                }
+
+                if (!string.IsNullOrEmpty(entity.Image) && !string.IsNullOrEmpty(imageName))
+                {
+                    _imageService.DeleteImage(entity.Image);
+                }
+
+                entity.Image = imageName;
+            }
 
             if (!string.IsNullOrEmpty(dto.Password) && !string.IsNullOrEmpty(dto.NewPassword))
             {
@@ -64,10 +101,33 @@ namespace web_api.BLL.Services.User
             }
             
             var result = await _userManager.UpdateAsync(entity);
-            if (result.Succeeded)
-                return new ServiceResponse("Користувача успішно оновлено", true);
+            if (!result.Succeeded)
+                return new ServiceResponse(result.Errors.First().Description);
 
-            return new ServiceResponse(result.Errors.First().Description);
+            var userRoles = await _userManager.GetRolesAsync(entity);
+
+            var deleteRoles = userRoles.Where(r => !dto.Roles.Contains(r));
+
+            if (deleteRoles.Any())
+            {
+                var deleteRes = await _userManager.RemoveFromRolesAsync(entity, deleteRoles);
+                if (!deleteRes.Succeeded)
+                {
+                    return new ServiceResponse(deleteRes.Errors.First().Description);
+                }
+            }
+
+            var newRoles = dto.Roles.Where(r => !userRoles.Contains(r));
+            if (newRoles.Any())
+            {
+                var addRes = await _userManager.AddToRolesAsync(entity, newRoles);
+                if (!addRes.Succeeded)
+                {
+                    return new ServiceResponse(addRes.Errors.First().Description);
+                }
+            }
+
+            return new ServiceResponse("Користувача успішно оновлено", true);
         }
 
         public async Task<ServiceResponse> DeleteAsync(string id)
@@ -76,6 +136,9 @@ namespace web_api.BLL.Services.User
             
             if (entity == null)
                 return new ServiceResponse("Користувача не знайдено");
+
+            if (!string.IsNullOrEmpty(entity.Image))
+                _imageService.DeleteImage(entity.Image);
 
             var result = await _userManager.DeleteAsync(entity);
 

@@ -10,7 +10,7 @@ namespace web_api.BLL.MapperProfiles
         {
             // AppRole <-> RoleDto
             CreateMap<AppRole, RoleDto>().ReverseMap();
-            
+
             // AppUserRole -> RoleDto
             CreateMap<AppUserRole, RoleDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RoleId))

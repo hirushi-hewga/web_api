@@ -59,20 +59,13 @@ namespace web_api.Controllers
             return CreateActionResult(response);
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var response = await _manufactureService.GetAllAsync();
-            return CreateActionResult(response);
-        }
-
         [HttpGet]
-        public async Task<IActionResult> GetByIdAsync(string? id)
+        public async Task<IActionResult> GetAsync(string? id)
         {
-            if (!ValidateId(id, out var message))
-                return BadRequest(message);
+            var response = string.IsNullOrEmpty(id)
+                ? await _manufactureService.GetAllAsync()
+                : await _manufactureService.GetByIdAsync(id);
 
-            var response = await _manufactureService.GetByIdAsync(id);
             return CreateActionResult(response);
         }
     }

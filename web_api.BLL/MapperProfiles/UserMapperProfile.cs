@@ -15,8 +15,14 @@ namespace web_api.BLL.MapperProfiles
             // UserDto <-> AppUser
             CreateMap<AppUser, UserDto>()
                 .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.UserRoles));
-            
-            
+
+            // UserCreateDto -> AppUser
+            CreateMap<UserCreateDto, AppUser>()
+                .ForMember(dest => dest.Image, opt => opt.Ignore());
+
+            // UserUpdateDto -> AppUser
+            CreateMap<UserCreateDto, AppUser>()
+                .ForMember(dest => dest.Image, opt => opt.Ignore());
         }
     }
 }

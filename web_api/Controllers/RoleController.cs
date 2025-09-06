@@ -17,25 +17,6 @@ namespace web_api.Controllers
             _roleService = roleService;
             _roleValidator = roleValidator;
         }
-
-        [HttpGet("list")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var response = await _roleService.GetAllAsync();
-            return CreateActionResult(response);
-        }
-        
-        [HttpGet]
-        public async Task<IActionResult> GetByIdAsync(string? id)
-        {
-            var isValidId = ValidateId(id, out var message);
-            if (!isValidId)
-                return BadRequest(message);
-            
-            var response = await _roleService.GetByIdAsync(id);
-
-            return CreateActionResult(response);
-        }
         
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] RoleDto dto)
@@ -71,6 +52,16 @@ namespace web_api.Controllers
                 return BadRequest(message);
 
             var response = await _roleService.DeleteAsync(id);
+
+            return CreateActionResult(response);
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetAsync(string? id)
+        {
+            var response = string.IsNullOrEmpty(id)
+                ? await _roleService.GetAllAsync()
+                : await _roleService.GetByIdAsync(id);
 
             return CreateActionResult(response);
         }

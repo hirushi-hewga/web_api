@@ -12,13 +12,13 @@ namespace web_api.BLL.DTOs.User
     public class UserCreateDto
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string UserName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public required string UserName { get; set; } = string.Empty;
+        public required string Email { get; set; } = string.Empty;
+        public required string FirstName { get; set; } = string.Empty;
+        public required string LastName { get; set; } = string.Empty;
         public IFormFile? Image { get; set; }
-        public string Password { get; set; } = string.Empty;
-        public IEnumerable<RoleDto> Roles { get; set; } = [];
+        public required string Password { get; set; } = string.Empty;
+        public IEnumerable<string> Roles { get; set; } = [];
     }
 
     public class UserCreateValidator : AbstractValidator<UserCreateDto>
@@ -27,7 +27,7 @@ namespace web_api.BLL.DTOs.User
         {
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Username is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(50).WithMessage("maximum length 50 characters");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
@@ -39,11 +39,11 @@ namespace web_api.BLL.DTOs.User
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(20).WithMessage("maximum length 50 characters");
 
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage("Last name is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(20).WithMessage("maximum length 50 characters");
         }
     }
 }

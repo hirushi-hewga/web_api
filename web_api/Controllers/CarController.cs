@@ -63,25 +63,8 @@ namespace web_api.Controllers
             return CreateActionResult(response);
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var response = await _carService.GetAllAsync();
-            return CreateActionResult(response);
-        }
-
         [HttpGet]
-        public async Task<IActionResult> GetByIdAsync(string? id)
-        {
-            if (!ValidateId(id, out var message))
-                return BadRequest(message);
-
-            var response = await _carService.GetByIdAsync(id);
-            return CreateActionResult(response);
-        }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> GetPagedAsync(
+        public async Task<IActionResult> GetAsync(string? id,
             [FromQuery] int? year,
             [FromQuery] string? manufacture,
             [FromQuery] string? gearbox,
@@ -91,7 +74,10 @@ namespace web_api.Controllers
             [FromQuery] int pageSize = 10
             )
         {
-            var response = await _carService.GetPagedAsync(year, manufacture, gearbox, color, model, pageNumber, pageSize);
+            var response = string.IsNullOrEmpty(id)
+                ? await _carService.GetAllAsync(year, manufacture, gearbox, color, model, pageNumber, pageSize)
+                : await _carService.GetByIdAsync(id);
+
             return CreateActionResult(response);
         }
     }

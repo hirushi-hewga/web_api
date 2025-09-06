@@ -12,8 +12,7 @@ namespace web_api.BLL.Services.Cars
         Task<ServiceResponse> CreateAsync(CarCreateDto dto);
         Task<ServiceResponse> UpdateAsync(CarUpdateDto dto);
         Task<ServiceResponse> DeleteAsync(string id);
+        Task<ServiceResponse> GetAllAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize);
         Task<ServiceResponse> GetByIdAsync(string id);
-        Task<ServiceResponse> GetAllAsync();
-        Task<ServiceResponse> GetPagedAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize);
     }
 }

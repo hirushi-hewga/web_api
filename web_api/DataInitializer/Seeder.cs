@@ -24,10 +24,12 @@ namespace web_api.DataInitializer
                 {
                     UserName = "admin",
                     Email = "admin@gmail.com",
+                    FirstName = "admin",
+                    LastName = "admin",
                     EmailConfirmed = true
                 };
                 
-                await userManager.CreateAsync(user, "qwerty");
+                await userManager.CreateAsync(user, "qwerty-1");
                 await userManager.AddToRoleAsync(user, "admin");
             }
 
@@ -37,10 +39,12 @@ namespace web_api.DataInitializer
                 {
                     UserName = "user",
                     Email = "user@gmail.com",
+                    FirstName = "user",
+                    LastName = "user",
                     EmailConfirmed = true
                 };
                 
-                await userManager.CreateAsync(user, "qwerty");
+                await userManager.CreateAsync(user, "qwerty-1");
                 await userManager.AddToRoleAsync(user, "user");
             }
         }

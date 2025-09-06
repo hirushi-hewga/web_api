@@ -96,58 +96,7 @@ namespace web_api.BLL.Services.Cars
             return new ServiceResponse("Не вдалося видалити автомобіль");
         }
 
-        public async Task<ServiceResponse> GetAllAsync()
-        {
-            var entities = await _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .ToListAsync();
-
-            var dtos = _mapper.Map<IEnumerable<CarDto>>(entities);
-
-            return new ServiceResponse("Автомобілі отримано", true, dtos);
-        }
-
-        public async Task<ServiceResponse> GetByIdAsync(string id)
-        {
-            var entity = await _carRepository.GetByIdAsync(id);
-
-            if (entity == null)
-                return new ServiceResponse("Автомобіль не знайдено");
-
-            var dto = _mapper.Map<CarDto>(entity);
-
-            return new ServiceResponse("Автомобіль отримано", true, dto);
-        }
-
-        private async Task<PagedResult<CarDto>> CreatePagedResultAsync(int pageNumber, int pageSize, IQueryable<Car> entities)
-        {
-            var totalCount = await entities.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            var list = await entities
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var items = _mapper.Map<IEnumerable<CarDto>>(list);
-
-            var result = new PagedResult<CarDto>
-            {
-                Items = items,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                HasPreviousPage = pageNumber > 1,
-                HasNextPage = pageNumber < totalPages
-            };
-
-            return result;
-        }
-
-        public async Task<ServiceResponse> GetPagedAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize)
+        public async Task<ServiceResponse> GetAllAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize)
         {
             if (pageNumber < 1 || pageSize < 1)
                 return new ServiceResponse("Invalid pageNumber or pageSize.");
@@ -178,6 +127,46 @@ namespace web_api.BLL.Services.Cars
 
             var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
             return new ServiceResponse(result.Items.Any() ? "Автомобілі отримано" : "Автомобілі не знайдено", true, result);
+        }
+
+        public async Task<ServiceResponse> GetByIdAsync(string id)
+        {
+            var entity = await _carRepository.GetByIdAsync(id);
+
+            if (entity == null)
+                return new ServiceResponse("Автомобіль не знайдено");
+
+            var dto = _mapper.Map<CarDto>(entity);
+
+            return new ServiceResponse("Автомобіль отримано", true, dto);
+        }
+
+        private async Task<PagedResult<CarDto>> CreatePagedResultAsync(int pageNumber, int pageSize, IQueryable<Car> entities)
+        {
+            var totalCount = await entities.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            pageNumber = pageNumber < 1 || pageNumber > totalPages ? 1 : pageNumber;
+
+            var list = await entities
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var items = _mapper.Map<IEnumerable<CarDto>>(list);
+
+            var result = new PagedResult<CarDto>
+            {
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pageNumber > 1,
+                HasNextPage = pageNumber < totalPages
+            };
+
+            return result;
         }
     }
 }

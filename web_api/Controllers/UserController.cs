@@ -55,21 +55,13 @@ namespace web_api.Controllers
             return CreateActionResult(response);
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var response = await _userService.GetAllAsync();
-            return CreateActionResult(response);
-        }
-
         [HttpGet]
-        public async Task<IActionResult> GetByIdAsync(string? id)
+        public async Task<IActionResult> GetAllAsync(string? id)
         {
-            var isValidId = ValidateId(id, out var message);
-            if (!isValidId)
-                return BadRequest(message);
-            
-            var response = await _userService.GetByIdAsync(id);
+            var response = string.IsNullOrEmpty(id)
+                ? await _userService.GetAllAsync()
+                : await _userService.GetByIdAsync(id);
+
             return CreateActionResult(response);
         }
     }

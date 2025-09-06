@@ -1,7 +1,11 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Text;
 using web_api.BLL;
 using web_api.BLL.DTOs.Account;
 using web_api.BLL.MapperProfiles;
@@ -9,6 +13,7 @@ using web_api.BLL.Services.Account;
 using web_api.BLL.Services.Cars;
 using web_api.BLL.Services.Email;
 using web_api.BLL.Services.Image;
+using web_api.BLL.Services.Jwt;
 using web_api.BLL.Services.Manufactures;
 using web_api.BLL.Services.Role;
 using web_api.BLL.Services.User;
@@ -17,8 +22,39 @@ using web_api.DAL.Entities;
 using web_api.DAL.Repositories.Cars;
 using web_api.DAL.Repositories.Manufactures;
 using web_api.DataInitializer;
+using web_api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Logger
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log_.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// Add jwt
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? ""))
+        };
+    });
 
 // Add services to the container.
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -28,6 +64,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IManufactureService, ManufactureService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 // Add repositories
 builder.Services.AddScoped<ICarRepository, CarRepository>();
@@ -83,6 +120,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Middlewares
+app.UseMiddleware<MiddlewareLogger>();
+app.UseMiddleware<MiddlewareExceptionHandler>();
+app.UseMiddleware<MiddlewareNullExceptionHandler>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -110,6 +152,8 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseCors("localhost3000");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

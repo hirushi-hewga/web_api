@@ -19,7 +19,7 @@ namespace web_api.BLL.DTOs.User
         public IFormFile? Image { get; set; }
         public string Password { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
-        public IEnumerable<RoleDto> Roles { get; set; } = [];
+        public IEnumerable<string> Roles { get; set; } = [];
     }
 
     public class UserUpdateValidator : AbstractValidator<UserUpdateDto>
@@ -28,7 +28,7 @@ namespace web_api.BLL.DTOs.User
         {
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Username is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(20).WithMessage("maximum length 50 characters");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
@@ -36,19 +36,19 @@ namespace web_api.BLL.DTOs.User
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required")
-                .MinimumLength(6).WithMessage("minimum length 6 characters");
+                .MinimumLength(6).WithMessage("minimum length 8 characters");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(20).WithMessage("maximum length 50 characters");
 
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage("Last name is required")
-                .MaximumLength(20).WithMessage("maximum length 20 characters");
+                .MaximumLength(20).WithMessage("maximum length 50 characters");
 
             RuleFor(x => x.NewPassword)
                 .NotEmpty().WithMessage("New password is required")
-                .MinimumLength(6).WithMessage("minimum length 6 characters"); ;
+                .MinimumLength(6).WithMessage("minimum length 8 characters"); ;
         }
     }
 }

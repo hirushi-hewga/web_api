@@ -7,7 +7,7 @@ namespace web_api.Controllers
 {
     [ApiController]
     [Route("api/account")]
-    public class AccountController : ControllerBase
+    public class AccountController : AppController
     {
         private readonly IAccountService _accountService;
         private readonly IValidator<LoginDto> _loginValidator;
@@ -27,8 +27,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
             
-            var user = await _accountService.LoginAsync(dto);
-            return user == null ? BadRequest("Incorrect login or password") : Ok(user);
+            var response = await _accountService.LoginAsync(dto);
+            return CreateActionResult(response);
         }
 
         [HttpPost("register")]
@@ -38,8 +38,8 @@ namespace web_api.Controllers
             if (!validResult.IsValid)
                 return BadRequest(validResult);
             
-            var result = await _accountService.RegisterAsync(dto);
-            return result == null ? BadRequest("Register error") : Ok(result);
+            var response = await _accountService.RegisterAsync(dto);
+            return CreateActionResult(response);
         }
 
         [HttpGet("emailConfirm")]
