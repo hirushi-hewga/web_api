@@ -18,6 +18,12 @@ namespace web_api.DataInitializer
             if (await roleManager.FindByNameAsync("user") == null)
                 await roleManager.CreateAsync(new AppRole{ Name = "user" });
 
+            if (await roleManager.FindByNameAsync("carManager") == null)
+                await roleManager.CreateAsync(new AppRole { Name = "carManager" });
+
+            if (await roleManager.FindByNameAsync("manufactureManager") == null)
+                await roleManager.CreateAsync(new AppRole { Name = "manufactureManager" });
+
             if (await userManager.FindByNameAsync("admin") == null)
             {
                 var user = new AppUser

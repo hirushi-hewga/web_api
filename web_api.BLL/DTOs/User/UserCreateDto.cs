@@ -11,13 +11,13 @@ namespace web_api.BLL.DTOs.User
 {
     public class UserCreateDto
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public required string UserName { get; set; } = string.Empty;
-        public required string Email { get; set; } = string.Empty;
-        public required string FirstName { get; set; } = string.Empty;
-        public required string LastName { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? FirstName { get; set; } = string.Empty;
+        public string? LastName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool EmailConfirmed { get; set; } = false;
         public IFormFile? Image { get; set; }
-        public required string Password { get; set; } = string.Empty;
         public IEnumerable<string> Roles { get; set; } = [];
     }
 
@@ -27,7 +27,7 @@ namespace web_api.BLL.DTOs.User
         {
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Username is required")
-                .MaximumLength(50).WithMessage("maximum length 50 characters");
+                .MaximumLength(20).WithMessage("maximum length 20 characters");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
@@ -38,12 +38,10 @@ namespace web_api.BLL.DTOs.User
                 .MinimumLength(6).WithMessage("minimum length 6 characters");
 
             RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First name is required")
-                .MaximumLength(20).WithMessage("maximum length 50 characters");
+                .MaximumLength(20).WithMessage("maximum length 20 characters");
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name is required")
-                .MaximumLength(20).WithMessage("maximum length 50 characters");
+                .MaximumLength(20).WithMessage("maximum length 20 characters");
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using web_api.BLL.DTOs.Manufactures;
 using web_api.BLL.DTOs.User;
@@ -8,6 +10,7 @@ namespace web_api.Controllers
 {
     [ApiController]
     [Route("api/manufacture")]
+    [Authorize(Roles = "admin,manufactureManager", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ManufactureController : AppController
     {
         private readonly IValidator<ManufactureCreateDto> _manufactureCreateValidator;
@@ -60,6 +63,7 @@ namespace web_api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAsync(string? id)
         {
             var response = string.IsNullOrEmpty(id)

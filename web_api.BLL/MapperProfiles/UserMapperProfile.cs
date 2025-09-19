@@ -12,7 +12,7 @@ namespace web_api.BLL.MapperProfiles
             // RegisterDto -> AppUser
             CreateMap<RegisterDto, AppUser>();
             
-            // UserDto <-> AppUser
+            // AppUser -> UserDto
             CreateMap<AppUser, UserDto>()
                 .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.UserRoles));
 
@@ -21,7 +21,7 @@ namespace web_api.BLL.MapperProfiles
                 .ForMember(dest => dest.Image, opt => opt.Ignore());
 
             // UserUpdateDto -> AppUser
-            CreateMap<UserCreateDto, AppUser>()
+            CreateMap<UserUpdateDto, AppUser>()
                 .ForMember(dest => dest.Image, opt => opt.Ignore());
         }
     }

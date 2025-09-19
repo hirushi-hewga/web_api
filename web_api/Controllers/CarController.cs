@@ -1,4 +1,6 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using web_api.BLL.DTOs.Cars;
 using web_api.BLL.DTOs.Manufactures;
@@ -12,6 +14,7 @@ namespace web_api.Controllers
 {
     [ApiController]
     [Route("api/car")]
+    [Authorize(Roles = "admin,carManager", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CarController : AppController
     {
         private readonly IValidator<CarCreateDto> _carCreateValidator;
@@ -64,6 +67,7 @@ namespace web_api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAsync(string? id,
             [FromQuery] int? year,
             [FromQuery] string? manufacture,

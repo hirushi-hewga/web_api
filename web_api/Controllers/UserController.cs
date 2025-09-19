@@ -36,10 +36,6 @@ namespace web_api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromBody] UserUpdateDto dto)
         {
-            var validResult = await _userUpdateValidator.ValidateAsync(dto);
-            if (!validResult.IsValid)
-                return BadRequest(validResult);
-
             var response = await _userService.UpdateAsync(dto);
             return CreateActionResult(response);
         }
@@ -51,18 +47,33 @@ namespace web_api.Controllers
             if (!isValidId)
                 return BadRequest(message);
             
-            var response = await _userService.DeleteAsync(id);
+            var response = await _userService.DeleteAsync(id ?? "");
             return CreateActionResult(response);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(string? id)
+        public async Task<IActionResult> GetAsync(string? id, string? userName, string? email)
         {
-            var response = string.IsNullOrEmpty(id)
-                ? await _userService.GetAllAsync()
-                : await _userService.GetByIdAsync(id);
-
-            return CreateActionResult(response);
+            if (!string.IsNullOrEmpty(id))
+            {
+                var response = await _userService.GetByIdAsync(id);
+                return CreateActionResult(response);
+            }
+            else if (!string.IsNullOrEmpty(userName))
+            {
+                var response = await _userService.GetByUserNameAsync(userName);
+                return CreateActionResult(response);
+            }
+            else if (!string.IsNullOrEmpty(email))
+            {
+                var response = await _userService.GetByEmailAsync(email);
+                return CreateActionResult(response);
+            }
+            else
+            {
+                var response = await _userService.GetAllAsync();
+                return CreateActionResult(response);
+            }
         }
     }
 }
