@@ -21,6 +21,7 @@ using web_api.BLL.Services.User;
 using web_api.DAL;
 using web_api.DAL.Entities;
 using web_api.DAL.Repositories.Cars;
+using web_api.DAL.Repositories.Jwt;
 using web_api.DAL.Repositories.Manufactures;
 using web_api.DataInitializer;
 using web_api.Middlewares;
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // Add repositories
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<IManufactureRepository, ManufactureRepository>();
+builder.Services.AddScoped<IJwtRepository, JwtRepository>();
 
 builder.Services.AddControllers();
 

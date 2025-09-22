@@ -47,8 +47,13 @@ namespace web_api.BLL.Services.Account
             if (!result)
                 return new ServiceResponse("Пароль вказано невірно");
 
-            var jwtToken = await _jwtService.GetJwtTokenAsync(user);
-            return new ServiceResponse("Успішний вхід", true, jwtToken);
+            // Jwt generate
+            var tokens = await _jwtService.GenerateTokensAsync(user);
+
+            if (tokens == null)
+                return new ServiceResponse("Помилка при генерації токенів");
+
+            return new ServiceResponse("Успішний вхід", true, tokens);
         }
 
         public async Task<ServiceResponse> RegisterAsync(RegisterDto dto)
@@ -73,8 +78,13 @@ namespace web_api.BLL.Services.Account
 
             await SendEmailConfirmAsync(user.Id);
 
-            var jwtToken = await _jwtService.GetJwtTokenAsync(user);
-            return new ServiceResponse("Успішна реєстрація", true, jwtToken);
+            // Jwt generate
+            var tokens = _jwtService.GenerateTokensAsync(user);
+
+            if (tokens == null)
+                return new ServiceResponse("Помилка при генерації токенів");
+
+            return new ServiceResponse("Успішна реєстрація", true, tokens);
         }
 
         public async Task<bool> EmailConfirmAsync(string id, string token)

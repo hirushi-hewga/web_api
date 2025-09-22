@@ -1,7 +1,9 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using web_api.BLL.DTOs;
 using web_api.BLL.DTOs.Account;
 using web_api.BLL.Services.Account;
+using web_api.BLL.Services.Jwt;
 
 namespace web_api.Controllers
 {
@@ -12,14 +14,16 @@ namespace web_api.Controllers
         private readonly IAccountService _accountService;
         private readonly IValidator<LoginDto> _loginValidator;
         private readonly IValidator<RegisterDto> _registerValidator;
+        private readonly IJwtService _jwtService;
 
-        public AccountController(IAccountService accountService, IValidator<LoginDto> loginValidator, IValidator<RegisterDto> registerValidator)
+        public AccountController(IAccountService accountService, IValidator<LoginDto> loginValidator, IValidator<RegisterDto> registerValidator, IJwtService jwtService)
         {
             _accountService = accountService;
             _loginValidator = loginValidator;
             _registerValidator = registerValidator;
+            _jwtService = jwtService;
         }
-        
+
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
         {
@@ -65,6 +69,14 @@ namespace web_api.Controllers
             var result = await _accountService.SendEmailConfirmAsync(userId);
             
             return result ? Ok() : BadRequest();
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshTokensAsync(JwtTokensDto dto)
+        {
+            var response = await _jwtService.RefreshTokensAsync(dto);
+
+            return CreateActionResult(response);
         }
     }
 }
