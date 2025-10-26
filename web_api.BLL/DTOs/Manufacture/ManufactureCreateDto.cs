@@ -16,7 +16,6 @@ namespace web_api.BLL.DTOs.Manufactures
         public string? Founder { get; set; } = string.Empty;
         public string? Director { get; set; } = string.Empty;
         public IFormFile? Image { get; set; }
-        public IEnumerable<Car>? Cars { get; set; }
     }
 
     public class ManufactureCreateValidator : AbstractValidator<ManufactureCreateDto>

@@ -269,7 +269,7 @@ namespace web_api.DAL.Migrations
 
                     b.HasIndex("ManufactureId");
 
-                    b.ToTable("Cars");
+                    b.ToTable("Cars", (string)null);
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.CarImage", b =>
@@ -300,7 +300,7 @@ namespace web_api.DAL.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("CarImages");
+                    b.ToTable("CarImages", (string)null);
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.Manufacture", b =>
@@ -336,7 +336,7 @@ namespace web_api.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Manufactures");
+                    b.ToTable("Manufactures", (string)null);
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.RefreshToken", b =>
@@ -374,7 +374,7 @@ namespace web_api.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("web_api.DAL.Entities.AppRoleClaim", b =>

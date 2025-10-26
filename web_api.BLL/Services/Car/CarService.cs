@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using web_api.BLL.DTOs;
+using web_api.BLL.DTOs.Car;
 using web_api.BLL.DTOs.Cars;
 using web_api.BLL.Services.Image;
 using web_api.DAL.Entities;
@@ -101,32 +103,56 @@ namespace web_api.BLL.Services.Cars
             if (pageNumber < 1 || pageSize < 1)
                 return new ServiceResponse("Invalid pageNumber or pageSize.");
 
-            var entities = _carRepository
-                .GetAll()
-                .Include(e => e.Images)
-                .Include(e => e.Manufacture)
-                .AsQueryable();
+            var filters = new List<Expression<Func<Car, bool>>>();
 
             if (year != null)
-                entities = entities.Where(c => c.Year == year);
+                filters.Add(c => c.Year == year);
 
             if (!string.IsNullOrEmpty(manufacture))
-                entities = entities.Where(c => c.Manufacture != null && c.Manufacture.Name.Contains(manufacture, StringComparison.OrdinalIgnoreCase));
+                filters.Add(c => c.Manufacture != null && c.Manufacture.Name.Contains(manufacture, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrEmpty(gearbox))
-                entities = entities.Where(c => c.Gearbox != null && c.Gearbox.Contains(gearbox, StringComparison.OrdinalIgnoreCase));
+                filters.Add(c => c.Gearbox != null && c.Gearbox.Contains(gearbox, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrEmpty(color))
-                entities = entities.Where(c => c.Color != null && c.Color.Contains(color, StringComparison.OrdinalIgnoreCase));
+                filters.Add(c => c.Color != null && c.Color.Contains(color, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrEmpty(model))
             {
                 var keywords = model.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                entities = entities.Where(c => keywords.Any(k => c.Model.Contains(k, StringComparison.OrdinalIgnoreCase)));
+                filters.Add(c => keywords.Any(k => c.Model.Contains(k, StringComparison.OrdinalIgnoreCase)));
             }
 
-            var result = await CreatePagedResultAsync(pageNumber, pageSize, entities);
-            return new ServiceResponse(result.Items.Any() ? "Автомобілі отримано" : "Автомобілі не знайдено", true, result);
+            var cars = filters.Any()
+                ? _carRepository.GetCars(filters)
+                : _carRepository.GetCars();
+
+            var totalCount = await cars.CountAsync();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            pageNumber = pageNumber < 1 || pageNumber > totalPages ? 1 : pageNumber;
+
+            cars = cars
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var list = await cars.ToListAsync();
+
+            var dtos = _mapper.Map<List<CarDto>>(list);
+
+            var dto = new CarListDto
+            {
+                Cars = dtos,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pageNumber > 1,
+                HasNextPage = pageNumber < totalPages
+            };
+
+            return new ServiceResponse("Автомобілі отримано", true, dto);
         }
 
         public async Task<ServiceResponse> GetByIdAsync(string id)
@@ -139,34 +165,6 @@ namespace web_api.BLL.Services.Cars
             var dto = _mapper.Map<CarDto>(entity);
 
             return new ServiceResponse("Автомобіль отримано", true, dto);
-        }
-
-        private async Task<PagedResult<CarDto>> CreatePagedResultAsync(int pageNumber, int pageSize, IQueryable<Car> entities)
-        {
-            var totalCount = await entities.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            pageNumber = pageNumber < 1 || pageNumber > totalPages ? 1 : pageNumber;
-
-            var list = await entities
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var items = _mapper.Map<IEnumerable<CarDto>>(list);
-
-            var result = new PagedResult<CarDto>
-            {
-                Items = items,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                HasPreviousPage = pageNumber > 1,
-                HasNextPage = pageNumber < totalPages
-            };
-
-            return result;
         }
     }
 }

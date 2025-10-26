@@ -15,6 +15,5 @@ namespace web_api.BLL.Services.Jwt
         Task<JwtSecurityToken> GenerateAccessTokenAsync(AppUser user);
         Task<JwtTokensDto?> GenerateTokensAsync(AppUser user);
         Task<ServiceResponse> RefreshTokensAsync(JwtTokensDto dto);
-        //Task<string> GetJwtTokenAsync(AppUser user);
     }
 }
