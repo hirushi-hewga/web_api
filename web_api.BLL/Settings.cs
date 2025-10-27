@@ -14,8 +14,10 @@ namespace web_api.BLL
         public const string ManufacturesPath = "manufactures";
         public const string CarsPath = "cars";
         public const string UsersPath = "users";
-        //roles
+        // roles
         public const string AdminRole = "admin";
         public const string UserRole = "user";
+        // pagination
+        public const int PageSize = 10;
     }
 }

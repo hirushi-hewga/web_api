@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using web_api.BLL;
 using web_api.BLL.DTOs.Cars;
 using web_api.BLL.DTOs.Manufactures;
 using web_api.BLL.Services;
@@ -75,7 +76,7 @@ namespace web_api.Controllers
             [FromQuery] string? color,
             [FromQuery] string? model,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10
+            [FromQuery] int pageSize = Settings.PageSize
             )
         {
             var response = string.IsNullOrEmpty(id)

@@ -100,6 +100,8 @@ namespace web_api.BLL.Services.Cars
 
         public async Task<ServiceResponse> GetAllAsync(int? year, string? manufacture, string? gearbox, string? color, string? model, int pageNumber, int pageSize)
         {
+            pageSize = pageSize < 1 ? Settings.PageSize : pageSize;
+
             if (pageNumber < 1 || pageSize < 1)
                 return new ServiceResponse("Invalid pageNumber or pageSize.");
 

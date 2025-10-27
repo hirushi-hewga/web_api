@@ -5,25 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 using Serilog;
 using System.Text;
 using web_api.BLL;
 using web_api.BLL.DTOs.Account;
 using web_api.BLL.MapperProfiles;
-using web_api.BLL.Services.Account;
-using web_api.BLL.Services.Cars;
-using web_api.BLL.Services.Email;
-using web_api.BLL.Services.Image;
-using web_api.BLL.Services.Jwt;
-using web_api.BLL.Services.Manufactures;
-using web_api.BLL.Services.Role;
-using web_api.BLL.Services.User;
 using web_api.DAL;
 using web_api.DAL.Entities;
 using web_api.DAL.Repositories.Cars;
 using web_api.DAL.Repositories.Jwt;
 using web_api.DAL.Repositories.Manufactures;
 using web_api.DataInitializer;
+using web_api.Infrastructure;
+using web_api.Jobs;
 using web_api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,14 +55,19 @@ builder.Services.AddAuthentication(options =>
     });
 
 // Add services to the container.
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IManufactureService, ManufactureService>();
-builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<ICarService, CarService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddServices();
+
+// Add quartz
+var jobs = new (Type type, string cronExpression)[]
+{
+    (typeof(ConsoleLogJob), "0 * * * * ?"),
+    (typeof(LogCleanJob), "0 1 0 * * ?"),
+    (typeof(EmailJob), "0 * * * * ?")
+};
+
+builder.Services.AddJobs(jobs);
+
+builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
 // Add repositories
 builder.Services.AddScoped<ICarRepository, CarRepository>();
